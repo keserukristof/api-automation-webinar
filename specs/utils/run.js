@@ -8,6 +8,7 @@ chakram.initialize(require('chai-sorted'));
 
 
 const POLL_TIMEOUT = 2000;
+
 const polling = setInterval(() => {
     fetch(api.BASE_URL).then(res => {
         if (res.status === 200) {
@@ -19,7 +20,8 @@ const polling = setInterval(() => {
         console.log('Waiting for server...');
     });
 }, POLL_TIMEOUT);
-const waitTimeout = setTimeout(() =>  {
+
+const waitTimeout = setTimeout(() => {
     console.error('Server is not available!');
     clearInterval(polling);
     process.exit(1);

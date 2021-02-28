@@ -58,5 +58,8 @@ typings/
 # dotenv environment variables file
 .env
 
-# package-lock
+# data
+server/data.json
+
+# package-lock.json
 package-lock.json

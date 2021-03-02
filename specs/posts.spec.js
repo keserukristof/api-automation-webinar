@@ -9,7 +9,7 @@ describe('Posts', () => {
     describe('Create', () => {
         let addedId;
 
-        it('Should add a post', () => {
+        it('should add a post', () => {
             const postToAdd = {
                 "userId": 1,
                 "title": "test title",
@@ -190,7 +190,7 @@ describe('Posts', () => {
         });
 
         describe('Slice', () => {
-            it('should return the correct posts started form the _start value to the _end value', () => {
+            it('should return the correct posts started form the _start value to the _end', () => {
                 const response = chakram.get(api.url('posts', '_start=20&_end=23'));
                 expect(response).to.have.status(200);
                 expect(response).to.have.header('X-Total-Count', '100');
@@ -205,7 +205,7 @@ describe('Posts', () => {
                 return chakram.wait();
             });
 
-            it('should return all posts, if the _start or the _end is not definied', () => {
+            it('should return all posts, if the _start or the _end is not defined', () => {
                 const response = chakram.get(api.url('posts', '_start=20'));
                 expect(response).to.have.status(200);
                 expect(response).to.have.json('data', posts => {
@@ -215,7 +215,7 @@ describe('Posts', () => {
                 return chakram.wait();
             });
 
-            it('should return posts, counted from the end of all posts, if the _start value is negative number', () => {
+            it('should return posts counted from the end of all posts, if the _start value is a negative number', () => {
                 const response = chakram.get(api.url('posts', '_start=-21&_end=90'));
                 expect(response).to.have.status(200);
                 expect(response).to.have.json('data', posts => {

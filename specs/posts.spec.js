@@ -4,17 +4,15 @@ const chakram = require('chakram');
 const expect = chakram.expect;
 const api = require('./utils/api');
 const data = require('../server/data.json');
+const testData = require('../utils/testData.json')
+const utils = require('../utils/utils')
 
 describe('Posts', () => {
     describe('Create', () => {
         let addedId;
 
         it('should add a post', () => {
-            const postToAdd = {
-                "userId": 1,
-                "title": "test title",
-                "body": "test body"
-            };
+            const postToAdd = utils.getRandomPost(testData.postsToAdd);
             return chakram.post(api.url('posts'), postToAdd)
                 .then(responseFromPost => {
                     expect(responseFromPost.response.statusCode).to.match(/^20/);
@@ -27,6 +25,7 @@ describe('Posts', () => {
         });
 
         it('should not add a post with existing id', () => {
+            //first add data
             const postToAdd = {
                 "id": 1,
                 "userId": 1,
@@ -42,7 +41,7 @@ describe('Posts', () => {
             if (addedId) {
                 return chakram.delete(api.url(`posts/${addedId}`));
             }
-        })
+        });
     });
 
     describe('Read', () => {
@@ -56,9 +55,9 @@ describe('Posts', () => {
             return chakram.wait();
         });
 
-        it('should return a given post', async () => {
+        it('should return a given post', () => {
             const expectedPost = data.posts[0];
-            const response = await chakram.get(api.url(`posts/${expectedPost.id}`));
+            const response = chakram.get(api.url(`posts/${expectedPost.id}`));
             expect(response).to.have.status(200);
             expect(response).to.have.json('data', post => {
                 expect(post).to.be.defined;
@@ -68,7 +67,9 @@ describe('Posts', () => {
         });
 
         it('should not return a post with non-existing id', () => {
-            const response = chakram.get(api.url('posts/234235325'));
+            const lastPost = data.posts[data.posts.length - 1];
+            const nonExistingId = lastPost.id + 1;
+            const response = chakram.get(api.url(`posts/${nonExistingId}`));
             expect(response).to.have.status(404);
             return chakram.wait();
         });
@@ -86,6 +87,7 @@ describe('Posts', () => {
             });
 
             it('should not return anything in case of impossible filter', () => {
+                //consts to another file
                 const IMPOSSIBLE_FILTER = "impossible-filter"
                 const response = chakram.get(api.url(`posts/${IMPOSSIBLE_FILTER}`));
                 return expect(response).to.have.status(404);

@@ -1,0 +1,29 @@
+{
+  "postsToAdd": [
+    {
+      "userId": 1,
+      "title": "test title",
+      "body": "test body"
+    },
+    {
+      "userId": 1,
+      "title": "test title 432",
+      "body": "test body 21"
+    },
+    {
+      "userId": 2,
+      "title": "test title 3",
+      "body": "test body  555"
+    },
+    {
+      "userId": 3,
+      "title": "test title 23",
+      "body": "test body 353"
+    },
+    {
+      "userId": 4,
+      "title": "test title 3333",
+      "body": "test body 356"
+    }
+  ]
+}

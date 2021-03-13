@@ -4,12 +4,16 @@ const chakram = require('chakram');
 const expect = chakram.expect;
 const api = require('./utils/api');
 const data = require('../server/data.json');
-const testData = require('../utils/testData.json')
-const utils = require('../utils/utils')
+const testData = require('./utils/testData.json');
+const utils = require('./utils/utils');
+const constants = require('./utils/constants')
 
 describe('Posts', () => {
     describe('Create', () => {
+        //Id for the 'should add a post' test case
         let addedId;
+        //Id for the 'should not add a post with existing id' test case
+        let notExistingId;
 
         it('should add a post', () => {
             const postToAdd = utils.getRandomPost(testData.postsToAdd);
@@ -25,21 +29,26 @@ describe('Posts', () => {
         });
 
         it('should not add a post with existing id', () => {
-            //first add data
-            const postToAdd = {
-                "id": 1,
-                "userId": 1,
-                "title": "test title",
-                "body": "test body"
-            };
-            const response = chakram.post(api.url('posts'), postToAdd);
-            expect(response).to.have.status(500);
+            const ids = data.posts.map(post => post.id);
+            notExistingId = 1;
+            while (ids.includes(notExistingId)) {
+                notExistingId = utils.getRandomId(10000);
+            }
+            const postToAdd = utils.getRandomPost(testData.postsToAdd)
+            postToAdd.id = notExistingId;
+            const responseFromValidPostRequest = chakram.post(api.url('posts'), postToAdd);
+            expect(responseFromValidPostRequest).to.have.status(201);
+            const responseFromInvalidPostRequest = chakram.post(api.url('posts'), postToAdd);
+            expect(responseFromInvalidPostRequest).to.have.status(500);
             return chakram.wait();
         });
 
         after(() => {
             if (addedId) {
-                return chakram.delete(api.url(`posts/${addedId}`));
+                chakram.delete(api.url(`posts/${addedId}`));
+            }
+            if (notExistingId) {
+                chakram.delete(api.url(`posts/${notExistingId}`));
             }
         });
     });
@@ -56,7 +65,7 @@ describe('Posts', () => {
         });
 
         it('should return a given post', () => {
-            const expectedPost = data.posts[0];
+            const expectedPost = utils.getRandomPost(data.posts);
             const response = chakram.get(api.url(`posts/${expectedPost.id}`));
             expect(response).to.have.status(200);
             expect(response).to.have.json('data', post => {
@@ -68,8 +77,8 @@ describe('Posts', () => {
 
         it('should not return a post with non-existing id', () => {
             const lastPost = data.posts[data.posts.length - 1];
-            const nonExistingId = lastPost.id + 1;
-            const response = chakram.get(api.url(`posts/${nonExistingId}`));
+            const notExistingId = lastPost.id + 1;
+            const response = chakram.get(api.url(`posts/${notExistingId}`));
             expect(response).to.have.status(404);
             return chakram.wait();
         });
@@ -87,15 +96,18 @@ describe('Posts', () => {
             });
 
             it('should not return anything in case of impossible filter', () => {
-                //consts to another file
-                const IMPOSSIBLE_FILTER = "impossible-filter"
-                const response = chakram.get(api.url(`posts/${IMPOSSIBLE_FILTER}`));
+                const impossibleFilter = constants.IMPOSSIBLE_FILTER
+                const response = chakram.get(api.url(`posts/${impossibleFilter}`));
                 return expect(response).to.have.status(404);
             });
 
             it('should ignore filtering if invalid filter passed', () => {
-                const NOT_EXISTING_ID = 100000000
-                const response = chakram.get(api.url('posts', `id=${NOT_EXISTING_ID}`));
+                const ids = data.posts.map(post => post.id);
+                let notExistingId = 1;
+                while (ids.includes(notExistingId)) {
+                    notExistingId = utils.getRandomId(10000);
+                }
+                const response = chakram.get(api.url('posts', `id=${notExistingId}`));
                 expect(response).to.have.status(200);
                 expect(response).to.have.json('data', posts => {
                     expect(posts).to.be.instanceof(Array);
@@ -360,8 +372,8 @@ describe('Posts', () => {
                 expect(response).to.have.json('data', post => {
                     expect(post).to.be.defined;
                     post.comments.forEach(comment => {
-                      expect(comment.postId).to.equal(3);
-                   });
+                        expect(comment.postId).to.equal(3);
+                    });
                 });
                 return chakram.wait();
             });
@@ -387,7 +399,7 @@ describe('Posts', () => {
                     expect(posts).to.be.instanceof(Array);
                     expect(posts.length).to.equal(100);
                     posts.forEach(post => {
-                       expect(post).to.have.property('NotCorrectValue');
+                        expect(post).to.have.property('NotCorrectValue');
                     });
                 });
                 return chakram.wait();

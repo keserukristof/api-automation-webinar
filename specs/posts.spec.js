@@ -34,7 +34,7 @@ describe('Posts', () => {
             while (ids.includes(notExistingId)) {
                 notExistingId = utils.getRandomId(10000);
             }
-            const postToAdd = utils.getRandomPost(testData.postsToAdd)
+            const postToAdd = utils.getRandomPost(testData.postsToAdd);
             postToAdd.id = notExistingId;
             const responseFromValidPostRequest = chakram.post(api.url('posts'), postToAdd);
             expect(responseFromValidPostRequest).to.have.status(201);
@@ -55,11 +55,12 @@ describe('Posts', () => {
 
     describe('Read', () => {
         it('should return all the posts', () => {
+            const postsLength = data.posts.length;
             const response = chakram.get(api.url('posts'));
             expect(response).to.have.status(200);
             expect(response).to.have.json('data', posts => {
                 expect(posts).to.be.instanceof(Array);
-                expect(posts.length).to.be.greaterThan(0);
+                expect(posts.length).to.equal(postsLength);
             });
             return chakram.wait();
         });
